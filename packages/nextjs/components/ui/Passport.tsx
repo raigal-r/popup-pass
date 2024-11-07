@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { passportAbi } from "@/src/generated";
+import { passportAbi, tokenBoundAccountRegistryAbi } from "@/src/generated";
 import { ImagePlus, Ticket } from "lucide-react";
 import { arbitrumSepolia } from "viem/chains";
 import { useAccount, useChainId, useSwitchChain, useWriteContract } from "wagmi";
+import { CONTRACTS } from "~~/contracts/contants";
 import { notification } from "~~/utils/scaffold-eth/notification";
-
-const CONTRACT_ADDRESS = "0xd9145CCE52D386f254917e481eB44e9943F39138";
 
 type Stamp = {
   id: string;
@@ -26,35 +25,89 @@ const mockedPassport = {
 const Passport = ({ userVerified }: { userVerified: boolean }) => {
   const [loading, setLoading] = useState<"create" | "mint" | "recover">();
   const [passportData, setPassportData] = useState<PassportData>();
+  const [tokenId, setTokenId] = useState<number>();
+  const [mintStage, setMintStage] = useState<"passport" | "registry" | "completed">();
 
   const { address } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
 
-  // Separate contract writing logic
-  const { writeContract, isPending, error: contractError, isSuccess, reset: resetContractWrite } = useWriteContract();
+  // Contract writing hooks for both interactions
+  const {
+    writeContractAsync: writePassportContract,
+    isPending: isPassportPending,
+    error: passportError,
+    isSuccess: isPassportSuccess,
+    reset: resetPassportWrite,
+  } = useWriteContract();
 
-  // Handle contract interaction states
+  const {
+    writeContractAsync: writeRegistryContract,
+    isPending: isRegistryPending,
+    error: registryError,
+    isSuccess: isRegistrySuccess,
+    reset: resetRegistryWrite,
+  } = useWriteContract();
+
+  // Handle Passport contract interaction states
   useEffect(() => {
-    if (contractError) {
+    if (passportError) {
       notification.error(
-        `Error minting passport: ${contractError instanceof Error ? contractError.message : "Unknown error occurred"}`,
+        `Error minting passport: ${passportError instanceof Error ? passportError.message : "Unknown error occurred"}`,
       );
       setLoading(undefined);
-      resetContractWrite();
+      setMintStage(undefined);
+      resetPassportWrite();
     }
 
-    if (isSuccess) {
-      notification.success("Passport minted successfully!");
+    if (isPassportSuccess) {
+      notification.success("Passport minted successfully! Creating account...");
+      setMintStage("registry");
+
+      // Initiate registry contract interaction
+      if (tokenId) {
+        const createAccount = async () => {
+          try {
+            const hash = await writeRegistryContract({
+              address: CONTRACTS.REGISTRY,
+              abi: tokenBoundAccountRegistryAbi,
+              functionName: "createAccount",
+              args: [CONTRACTS.PASSPORT, BigInt(tokenId)],
+            });
+            console.log("Registry Creation Transaction Hash:", hash);
+          } catch (error) {
+            console.error("Error creating account:", error);
+          }
+        };
+        createAccount();
+      }
+    }
+  }, [passportError, isPassportSuccess, resetPassportWrite, writeRegistryContract, tokenId]);
+
+  // Handle Registry contract interaction states
+  useEffect(() => {
+    if (registryError) {
+      notification.error(
+        `Error creating account: ${registryError instanceof Error ? registryError.message : "Unknown error occurred"}`,
+      );
+      setLoading(undefined);
+      setMintStage(undefined);
+      resetRegistryWrite();
+    }
+
+    if (isRegistrySuccess) {
+      notification.success("Account created successfully!");
       setPassportData(mockedPassport);
       setLoading(undefined);
-      resetContractWrite();
+      setMintStage("completed");
+      resetRegistryWrite();
     }
-  }, [contractError, isSuccess, resetContractWrite]);
+  }, [registryError, isRegistrySuccess, resetRegistryWrite]);
 
   const handleMintPassport = async () => {
     try {
       setLoading("mint");
+      setMintStage("passport");
 
       // Network check
       if (chainId !== arbitrumSepolia.id) {
@@ -63,24 +116,40 @@ const Passport = ({ userVerified }: { userVerified: boolean }) => {
       }
 
       // Generate random tokenId between 1 and 1000
-      const tokenId = Math.floor(Math.random() * 1000) + 1;
+      const newTokenId = Math.floor(Math.random() * 1000) + 1;
+      setTokenId(newTokenId);
       const uri = "https://ipfs.io/ipfs/QmPgzuqxyMznqT6hT2AU4LwLYfT75qswVSgi8tYXPnYCoT";
 
       if (!address) {
         throw new Error("No wallet address found");
       }
 
-      // Write contract
-      writeContract({
-        address: CONTRACT_ADDRESS,
+      // Write passport contract and log transaction hash
+      const hash = await writePassportContract({
+        address: CONTRACTS.PASSPORT,
         abi: passportAbi,
-        functionName: "safeMint",
-        args: [address, BigInt(tokenId), uri],
+        functionName: "mint",
+        args: [address, BigInt(newTokenId), uri],
       });
+      console.log("Passport Mint Transaction Hash:", hash);
     } catch (error) {
       notification.error(`Error initiating mint: ${error instanceof Error ? error.message : "Unknown error occurred"}`);
       setLoading(undefined);
+      setMintStage(undefined);
     }
+  };
+
+  const getMintButtonText = () => {
+    if (isPassportPending || isRegistryPending) {
+      return <span className="loading loading-spinner"></span>;
+    }
+    if (mintStage === "passport") {
+      return "Minting Passport...";
+    }
+    if (mintStage === "registry") {
+      return "Creating Account...";
+    }
+    return "Mint Passport";
   };
 
   // Render empty passport state
@@ -97,16 +166,15 @@ const Passport = ({ userVerified }: { userVerified: boolean }) => {
           <button
             className="btn btn-secondary w-full"
             onClick={handleMintPassport}
-            disabled={!userVerified || loading === "mint" || isPending}
+            disabled={!userVerified || loading === "mint" || isPassportPending || isRegistryPending}
           >
-            {loading === "mint" || isPending ? <span className="loading loading-spinner"></span> : "Mint Passport"}
+            {getMintButtonText()}
           </button>
         </div>
       </div>
     );
   }
 
-  // Render passport with stamps
   return (
     <div className="sticky card card-compact bg-base-100 shadow-xl top-4 left-0 w-64">
       <figure className="rounded-2xl">
