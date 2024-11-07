@@ -11,7 +11,7 @@ interface WorldIDVerificationProps {
   signal?: string;
 }
 
-const WorldIDAuth: React.FC = () => {
+const WorldIDAuth = ({ onSuccess }: { onSuccess?: () => void }) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleVerify = async (proof: WorldIDVerificationProps): Promise<void> => {
@@ -29,6 +29,7 @@ const WorldIDAuth: React.FC = () => {
       console.log(data);
       if (data.code === "success") {
         notification.success("Successfully verified with World ID!");
+        onSuccess?.();
       } else {
         notification.error("Verification failed. Please try again.");
       }
@@ -41,7 +42,7 @@ const WorldIDAuth: React.FC = () => {
   };
 
   return (
-    <div className="card bg-base-100 shadow-xl mt-4">
+    <div className="card bg-base-100 shadow-xl">
       <div className="card-body items-center text-center">
         <h2 className="card-title mb-4">Connect and verify with World ID</h2>
         <div className="space-y-4 w-full max-w-sm">
