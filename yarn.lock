@@ -181,6 +181,45 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@codefi/delegation-abis@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@codefi/delegation-abis@npm:0.4.0"
+  checksum: d31fe6f83db59e5089e048c982f7f88d59db36abee349f4a7992ae2263bb38aa540d29f0883915650fa2a8f2279f95fd42a7b876f678dca6186ec9aff7cb7f55
+  languageName: node
+  linkType: hard
+
+"@codefi/delegation-deployments@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@codefi/delegation-deployments@npm:0.4.0"
+  checksum: da94bdedd1e9d3bfe37de2d41e038f8cb30605803b8c351ec27d7649e68360e272856dc1560f2e7f55880d67fe135b364326ef81ec5cd14bd359c86f741d191e
+  languageName: node
+  linkType: hard
+
+"@codefi/delegation-utils@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@codefi/delegation-utils@npm:0.4.0"
+  dependencies:
+    "@codefi/delegation-abis": ^0.4.0
+    "@codefi/delegation-deployments": ^0.4.0
+    buffer: ^6.0.3
+  peerDependencies:
+    viem: ">=2.18.2 <3.0.0"
+  checksum: beec8111c44af2c0b7e9922debf890c79658e40e08799db843b20b49fc34ecef9a37ba820721d029cb9626c80b26f45dd4f0cbf776059092829e7540f9181d21
+  languageName: node
+  linkType: hard
+
+"@codefi/delegator-core-viem@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@codefi/delegator-core-viem@npm:0.4.0"
+  dependencies:
+    "@codefi/delegation-utils": ^0.4.0
+    webauthn-p256: ^0.0.5
+  peerDependencies:
+    viem: ">=2.18.2 <3.0.0"
+  checksum: 13e76a12f5db5c0e5f56d0716a9a82cf7ac83b828559fd52a2355e248fde706db6b81783c2d626d92e96b4f5f9737d5627051080c25f44d8dad3b7e0ec67a366
+  languageName: node
+  linkType: hard
+
 "@coinbase/wallet-sdk@npm:4.1.0":
   version: 4.1.0
   resolution: "@coinbase/wallet-sdk@npm:4.1.0"
@@ -1400,6 +1439,13 @@ __metadata:
   dependencies:
     semver: ^7.3.5
   checksum: d960cab4b93adcb31ce223bfb75c5714edbd55747342efb67dcc2f25e023d930a7af6ece3e75f2f459b6f38fc14d031c766f116cd124fdc937fd33112579e820
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/contracts@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@openzeppelin/contracts@npm:5.1.0"
+  checksum: dd42b4b331912cc743bc7eb27c8cf9e78249909c065bb59513c00d66941444c085c4e3b2ebf1cdd89535c26497fc994a7ab028b3c88858b636694e3c9c2d622f
   languageName: node
   linkType: hard
 
@@ -10072,6 +10118,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "se-2@workspace:."
   dependencies:
+    "@codefi/delegator-core-viem": ^0.4.0
+    "@openzeppelin/contracts": ^5.1.0
     husky: ~8.0.3
     lint-staged: ~13.2.2
   languageName: unknown
@@ -11723,6 +11771,16 @@ __metadata:
     "@noble/curves": ^1.4.0
     "@noble/hashes": ^1.4.0
   checksum: 0648a3d78451bfa7105b5151a34bd685ee60e193be9be1981fe73819ed5a92f410973bdeb72427ef03c8c2a848619f818cf3e66b94012d5127b462cb10c24f5d
+  languageName: node
+  linkType: hard
+
+"webauthn-p256@npm:^0.0.5":
+  version: 0.0.5
+  resolution: "webauthn-p256@npm:0.0.5"
+  dependencies:
+    "@noble/curves": ^1.4.0
+    "@noble/hashes": ^1.4.0
+  checksum: 2837188d1e6d947c87c5728374fb6aec96387cb766f78e7a04d5903774264feb278d68a639748f09997f591e5278796c662bb5c4e8b8286b0f22254694023584
   languageName: node
   linkType: hard
 
