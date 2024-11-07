@@ -6,8 +6,7 @@ import { arbitrumSepolia } from "viem/chains";
 import { useAccount, useChainId, useSwitchChain, useWriteContract } from "wagmi";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
-// Contract configuration
-const CONTRACT_ADDRESS = "0x30d3123dbD81d9ebB099E415365d630fd39B89ea";
+const CONTRACT_ADDRESS = "0xd9145CCE52D386f254917e481eB44e9943F39138";
 
 type Stamp = {
   id: string;
@@ -32,57 +31,59 @@ const Passport = ({ userVerified }: { userVerified: boolean }) => {
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
 
-  const {
-    writeContract,
-    isPending,
-    error: contractError,
-    status,
-  } = useWriteContract({
-    // onError: error => {
-    //   notification.error("Error minting passport: " + error.message);
-    //   setLoading(undefined);
-    // },
-    // onSuccess: () => {
-    //   notification.success("Passport minted successfully!");
-    //   setPassportData(mockedPassport);
-    //   setLoading(undefined);
-    // },
-  });
-  console.log(contractError);
-  const handleMintPassport = async () => {
-    setLoading("mint");
+  // Separate contract writing logic
+  const { writeContract, isPending, error: contractError, isSuccess, reset: resetContractWrite } = useWriteContract();
 
+  // Handle contract interaction states
+  useEffect(() => {
+    if (contractError) {
+      notification.error(
+        `Error minting passport: ${contractError instanceof Error ? contractError.message : "Unknown error occurred"}`,
+      );
+      setLoading(undefined);
+      resetContractWrite();
+    }
+
+    if (isSuccess) {
+      notification.success("Passport minted successfully!");
+      setPassportData(mockedPassport);
+      setLoading(undefined);
+      resetContractWrite();
+    }
+  }, [contractError, isSuccess, resetContractWrite]);
+
+  const handleMintPassport = async () => {
     try {
-      // Check if we're on the correct network (Arbitrum Sepolia)
+      setLoading("mint");
+
+      // Network check
       if (chainId !== arbitrumSepolia.id) {
         await switchChain({ chainId: arbitrumSepolia.id });
-        return;
+        return; // Early return as switchChain will trigger a re-render
       }
+
       // Generate random tokenId between 1 and 1000
       const tokenId = Math.floor(Math.random() * 1000) + 1;
-
-      // URI for the passport metadata
       const uri = "https://ipfs.io/ipfs/QmPgzuqxyMznqT6hT2AU4LwLYfT75qswVSgi8tYXPnYCoT";
-      console.log([address, BigInt(tokenId), uri]);
-      // Call the mint function
+
+      if (!address) {
+        throw new Error("No wallet address found");
+      }
+
+      // Write contract
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: passportAbi,
         functionName: "safeMint",
-        args: [address || "0x", BigInt(tokenId), uri],
+        args: [address, BigInt(tokenId), uri],
       });
     } catch (error) {
-      notification.error("Error minting passport. Please try again.");
+      notification.error(`Error initiating mint: ${error instanceof Error ? error.message : "Unknown error occurred"}`);
       setLoading(undefined);
     }
   };
-  useEffect(() => {
-    if (contractError) {
-      notification.error("Error minting passport. Please try again.");
-      setLoading(undefined);
-    }
-  }, [contractError]);
 
+  // Render empty passport state
   if (!passportData) {
     return (
       <div className="sticky card card-compact bg-base-100 shadow-xl top-4 left-0 w-64">
@@ -105,6 +106,7 @@ const Passport = ({ userVerified }: { userVerified: boolean }) => {
     );
   }
 
+  // Render passport with stamps
   return (
     <div className="sticky card card-compact bg-base-100 shadow-xl top-4 left-0 w-64">
       <figure className="rounded-2xl">
