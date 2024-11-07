@@ -24,6 +24,7 @@ interface IERC6551Executable {
      *
      * @return The result of the operation
      */
+    
     function execute(
         address to,
         uint256 value,
