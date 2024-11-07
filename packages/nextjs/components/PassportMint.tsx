@@ -9,6 +9,10 @@ const MintNFTButton = () => {
   const [minting, setMinting] = useState(false);
   const [message, setMessage] = useState("");
 
+  // Generate a random tokenId between 1 and 1000
+  const getRandomTokenId = () => Math.floor(Math.random() * 1000) + 1;
+
+
   // Mint NFT function
   const mintNFT = async () => {
     if (!window.ethereum) {
@@ -33,7 +37,7 @@ const MintNFTButton = () => {
       const nftContract = new ethers.Contract(contractAddress, contractABI, signer);
 
       // Token details
-      const tokenId = 1; // Make sure to use a unique ID each time
+      const tokenId = getRandomTokenId();
       const uri = "https://ipfs.io/ipfs/QmPgzuqxyMznqT6hT2AU4LwLYfT75qswVSgi8tYXPnYCoT"; // Replace with actual metadata URI
 
       setMinting(true);
