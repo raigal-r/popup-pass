@@ -5,6 +5,7 @@ import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-eth";
+import PassportMint from "~~/components/PassportMint"
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -61,6 +62,7 @@ const Home: NextPage = () => {
                 </Link>{" "}
                 tab.
               </p>
+              <PassportMint />
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
+import tokenBoundAccount from "~~/utils/tokenBoundAccount";
 
 // Define Arbitrum Sepolia contract address and ABI
 const contractAddress = "0x30d3123dbD81d9ebB099E415365d630fd39B89ea";
@@ -27,11 +28,11 @@ const MintNFTButton = () => {
       // Ensure we're on Arbitrum Sepolia Network
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const { chainId } = await provider.getNetwork();
-      if (chainId !== 421613) {
-        // Arbitrum Sepolia chain ID
-        setMessage("Please connect to the Arbitrum Sepolia network.");
-        return;
-      }
+    //   if (chainId !== 421613) {
+    //     // Arbitrum Sepolia chain ID
+    //     setMessage("Please connect to the Arbitrum Sepolia network.");
+    //     return;
+    //   }
 
       const signer = provider.getSigner();
       const nftContract = new ethers.Contract(contractAddress, contractABI, signer);
@@ -48,6 +49,8 @@ const MintNFTButton = () => {
       await tx.wait();
 
       setMessage("Minting successful! Transaction hash: " + tx.hash);
+
+      //tokenBoundAccount(NFT ID)
     } catch (error) {
       console.error("Minting failed:", error);
       setMessage("Minting failed: " + error.message);
