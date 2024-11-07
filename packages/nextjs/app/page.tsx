@@ -138,29 +138,6 @@ const LaunchPage = () => {
                 <WorldIDAuth onSuccess={() => setUserVerified(true)} />
               </div>
             </div>
-            {/* Passport Minting Card */}
-            {/* <div className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <h2 className="card-title">Mint Your Passport</h2>
-                <div className="space-y-6 my-4">
-                  <div className="flex items-center gap-4">
-                    <FileCheck className="h-8 w-8 text-success" />
-                    <div>
-                      <h3 className="font-medium">Digital Passport</h3>
-                      <p className="text-sm text-base-content/70">
-                        Your passport will be soulbound to your account and secure your assets
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card-actions justify-end">
-                  <button className="btn btn-secondary w-full" onClick={handleMintPassport} disabled={!userVerified}>
-                    {loading === "mint" ? <span className="loading loading-spinner"></span> : "Mint Passport"}
-                  </button>
-                </div>
-              </div>
-            </div> */}
           </div>
           <div className="">
             <Passport userVerified={userVerified} />

@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import Image from "next/image";
+import { passportAbi } from "@/src/generated";
 import { ImagePlus, Ticket } from "lucide-react";
+import { arbitrumSepolia } from "viem/chains";
+import { useAccount, useChainId, useSwitchChain, useWriteContract } from "wagmi";
 import { notification } from "~~/utils/scaffold-eth/notification";
+
+// Contract configuration
+const CONTRACT_ADDRESS = "0x30d3123dbD81d9ebB099E415365d630fd39B89ea";
 
 type Stamp = {
   id: string;
@@ -22,16 +28,48 @@ const Passport = ({ userVerified }: { userVerified: boolean }) => {
   const [loading, setLoading] = useState<"create" | "mint" | "recover">();
   const [passportData, setPassportData] = useState<PassportData>();
 
+  const { address } = useAccount();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+
+  const { writeContract, isPending, error, status } = useWriteContract({
+    // onError: error => {
+    //   notification.error("Error minting passport: " + error.message);
+    //   setLoading(undefined);
+    // },
+    // onSuccess: () => {
+    //   notification.success("Passport minted successfully!");
+    //   setPassportData(mockedPassport);
+    //   setLoading(undefined);
+    // },
+  });
+  console.log(status, error);
   const handleMintPassport = async () => {
     setLoading("mint");
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      notification.success("Passport minted successfully!");
-      setPassportData(mockedPassport);
+      // Check if we're on the correct network (Arbitrum Sepolia)
+      if (chainId !== arbitrumSepolia.id) {
+        await switchChain({ chainId: arbitrumSepolia.id });
+        return;
+      }
+      // Generate random tokenId between 1 and 1000
+      const tokenId = Math.floor(Math.random() * 1000) + 1;
+
+      // URI for the passport metadata
+      const uri = "https://ipfs.io/ipfs/QmPgzuqxyMznqT6hT2AU4LwLYfT75qswVSgi8tYXPnYCoT";
+      console.log([address || "0x", BigInt(tokenId), uri]);
+      // Call the mint function
+      writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: passportAbi,
+        functionName: "safeMint",
+        args: [address || "0x", BigInt(tokenId), uri],
+      });
     } catch (error) {
       notification.error("Error minting passport. Please try again.");
+      setLoading(undefined);
     }
-    setLoading(undefined);
   };
 
   if (!passportData) {
@@ -44,8 +82,12 @@ const Passport = ({ userVerified }: { userVerified: boolean }) => {
           </div>
         </figure>
         <div className="card-body p-4">
-          <button className="btn btn-secondary w-full" onClick={handleMintPassport} disabled={!userVerified}>
-            {loading === "mint" ? <span className="loading loading-spinner"></span> : "Mint Passport"}
+          <button
+            className="btn btn-secondary w-full"
+            onClick={handleMintPassport}
+            disabled={!userVerified || loading === "mint" || isPending}
+          >
+            {loading === "mint" || isPending ? <span className="loading loading-spinner"></span> : "Mint Passport"}
           </button>
         </div>
       </div>
