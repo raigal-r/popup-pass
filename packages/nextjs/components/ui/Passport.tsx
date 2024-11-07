@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { passportAbi } from "@/src/generated";
 import { ImagePlus, Ticket } from "lucide-react";
@@ -32,7 +32,12 @@ const Passport = ({ userVerified }: { userVerified: boolean }) => {
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
 
-  const { writeContract, isPending, error, status } = useWriteContract({
+  const {
+    writeContract,
+    isPending,
+    error: contractError,
+    status,
+  } = useWriteContract({
     // onError: error => {
     //   notification.error("Error minting passport: " + error.message);
     //   setLoading(undefined);
@@ -43,7 +48,7 @@ const Passport = ({ userVerified }: { userVerified: boolean }) => {
     //   setLoading(undefined);
     // },
   });
-  console.log(status, error);
+  console.log(contractError);
   const handleMintPassport = async () => {
     setLoading("mint");
 
@@ -58,7 +63,7 @@ const Passport = ({ userVerified }: { userVerified: boolean }) => {
 
       // URI for the passport metadata
       const uri = "https://ipfs.io/ipfs/QmPgzuqxyMznqT6hT2AU4LwLYfT75qswVSgi8tYXPnYCoT";
-      console.log([address || "0x", BigInt(tokenId), uri]);
+      console.log([address, BigInt(tokenId), uri]);
       // Call the mint function
       writeContract({
         address: CONTRACT_ADDRESS,
@@ -71,6 +76,12 @@ const Passport = ({ userVerified }: { userVerified: boolean }) => {
       setLoading(undefined);
     }
   };
+  useEffect(() => {
+    if (contractError) {
+      notification.error("Error minting passport. Please try again.");
+      setLoading(undefined);
+    }
+  }, [contractError]);
 
   if (!passportData) {
     return (
