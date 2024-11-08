@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sun } from "lucide-react";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
@@ -84,8 +84,8 @@ export const Header = () => {
           )}
         </div>
         <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
-          <div className="flex relative w-10 h-10">
-            <Sun className="w-10 h-10" />
+          <div className="flex relative w-9 h-10">
+            <Image fill src={"/logo.png"} alt="Pop-up Pass logo image" />
           </div>
           <div className="flex flex-col">
             <span className="font-bold leading-tight">Pop-up Pass</span>
