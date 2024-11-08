@@ -1,10 +1,5 @@
 # 🎫 Pop-up Pass
 
-<h4 align="center">
-  <a href="#">Documentation</a> |
-  <a href="#">Website</a>
-</h4>
-
 🔐 A decentralized identity and authentication system built on Scaffold-ETH 2 that combines on-chain identity verification, wallet delegation, and token-bound accounts to create a secure, user-friendly, and privacy-respecting "Passport" for Web3 communities.
 
 ⚙️ Built using Scaffold-ETH 2, World ID, MetaMask Delegation Toolkit, and Token Bound Accounts.
@@ -63,6 +58,7 @@ The Pop-up Pass system consists of three main components:
 - Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
 - [Git](https://git-scm.com/downloads)
 - MetaMask wallet
+- Arbitrum Sepolia testnet ETH
 
 ## 🏄‍♂️ Quick Start
 
@@ -74,19 +70,7 @@ cd popup-pass
 yarn install
 ```
 
-2. Start the local network:
-
-```bash
-yarn chain
-```
-
-3. Deploy the contracts:
-
-```bash
-yarn deploy
-```
-
-4. Generate contract types:
+2. Generate contract types:
 
 ```bash
 yarn generate
@@ -94,13 +78,15 @@ yarn generate
 
 This command generates TypeScript interfaces for your smart contracts using the contract ABIs. This step is crucial for type-safe interaction with your contracts from the frontend.
 
-5. Start the frontend:
+3. Start the frontend:
 
 ```bash
 yarn start
 ```
 
 Visit your app on: `http://localhost:3000`
+
+Make sure your MetaMask wallet is connected to Arbitrum Sepolia network. You can get testnet ETH from the [Arbitrum Sepolia Faucet](https://sepolia-faucet.arbitrum.io/).
 
 ## 🔧 Configuration
 
@@ -109,6 +95,14 @@ The Pop-up Pass system can be configured through:
 - World ID settings in `config/worldid.ts`
 - Delegation parameters in `config/delegation.ts`
 - Token Bound Account settings in `config/tba.ts`
+
+## 🔍 Testing
+
+Run the test suite with:
+
+```bash
+yarn test
+```
 
 ## 🤝 Contributing
 
