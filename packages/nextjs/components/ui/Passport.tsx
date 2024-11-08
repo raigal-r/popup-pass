@@ -19,7 +19,7 @@ type PassportData = {
 
 const mockedPassport = {
   src: "/passport_raigal.jpg",
-  stamps: Array(3).fill(null),
+  stamps: Array(4).fill(null),
 };
 
 const Passport = ({ userVerified }: { userVerified: boolean }) => {
